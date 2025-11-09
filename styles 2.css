@@ -1,0 +1,8 @@
+body{font-family:Segoe UI,Arial,sans-serif;margin:20px;background:#f8fafc;color:#0f172a}
+.nav a{margin-right:10px;color:#1e3a8a;text-decoration:none;font-weight:500}
+.card{background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:16px;margin-bottom:20px}
+table{border-collapse:collapse;width:100%;margin-top:10px}
+th,td{border:1px solid #d1d5db;padding:6px 12px;text-align:left}
+th{background:#e2e8f0}
+button{background:#111827;color:white;padding:6px 12px;border:none;border-radius:8px;cursor:pointer}
+button:hover{background:#1f2937}

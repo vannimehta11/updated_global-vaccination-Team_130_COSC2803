@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Vaccination Dashboard</title>
+    <style>
+        /* [KEEP ALL YOUR EXISTING CSS STYLES] */
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Inter', 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #f8fafc, #eef2f7);
+            color: #0f172a;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header styles */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #cbd5e1;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 0 8px 8px 8px;
+            min-height: 500px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Form controls */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .toolbar label {
+            font-weight: 500;
+            color: #334155;
+        }
+        
+        select, input, button {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background-color: white;
+        }
+        
+        button {
+            background-color: #111827;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px 14px;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: #1f2937;
+        }
+        
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Card styles */
+        .card {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        /* Text area styles */
+        .text-area {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background-color: white;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            min-height: 200px;
+        }
+        
+        .split-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .split-panel {
+            flex: 1;
+        }
+        
+        /* Status indicators */
+        .status-meets {
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        .status-below {
+            color: #ef4444;
+            font-weight: 500;
+        }
+        
+        .status-missing {
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        /* Navigation */
+        .nav {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .nav a {
+            margin-right: 15px;
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #cbd5e1;
+            color: #64748b;
+        }
+        
+        /* Economic phases */
+        .phase-high {
+            color: #10b981;
+        }
+        
+        .phase-upper-middle {
+            color: #3b82f6;
+        }
+        
+        .phase-lower-middle {
+            color: #f59e0b;
+        }
+        
+        .phase-low {
+            color: #ef4444;
+        }
+
+        /* ADDED: Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #3b82f6;
+            cursor: help;
+            margin: 0 2px;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 280px;
+            background-color: #1f2937;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+            line-height: 1.4;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ADDED: Visual highlighting styles */
+        .highlight-box {
+            background-color: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .highlight-warning {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+        }
+
+        .highlight-success {
+            background-color: #d1fae5;
+            border: 2px solid #10b981;
+        }
+
+        /* ADDED: Explanation text styles */
+        .explanation {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 12px 16px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-term {
+            font-weight: 600;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Global Vaccination Dashboard</h1>
+            <p>A comprehensive visualization of vaccination and infection data</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="mission-a">1A — Mission</div>
+            <div class="tab" data-tab="shallow-a">2A — Shallow Glance</div>
+            <div class="tab" data-tab="deep-a">3A — Deep Dive</div>
+            <div class="tab" data-tab="mission-b">1B — Mission</div>
+            <div class="tab" data-tab="infections-b">2B — Infections</div>
+            <div class="tab" data-tab="above-avg-b">3B — Above Average</div>
+        </div>
+        
+        <!-- 1A — Mission Tab -->
+        <div id="mission-a" class="tab-content active">
+            <div class="card">
+                <h2>Global Vaccination — Mission (1A)</h2>
+                <textarea class="text-area" readonly>
+Goal: Help people make sense of vaccination coverage without jargon.
+
+How to use:
+  1) Go to 2A tab to filter by Year / Disease / Region and see coverage tables.
+  2) Go to 3A tab to compare countries against a herd-immunity threshold.
+  3) Export tables to CSV for reporting.
+
+Threshold defaults (illustrative): Measles 95%, Polio 90%, DTP3 90%.
+Missing values are surfaced and excluded from averages.
+                </textarea>
+            </div>
+            <footer>
+                <p>Personas: NGO Coordinator, School Teacher — plain English + quick exports.</p>
+            </footer>
+        </div>
+        
+        <!-- 2A — Shallow Glance Tab -->
+        <div id="shallow-a" class="tab-content">
+            <h2>Shallow Glance — Filter and Explore</h2>
+            
+            <!-- ADDED: Explanatory text for calculations -->
+            <div class="explanation">
+                <span class="key-term">How this works:</span> Filter vaccination data by year, disease, and region. The table shows coverage rates compared to 
+                <span class="tooltip">herd immunity thresholds
+                    <span class="tooltiptext">The percentage of population that needs vaccination to stop disease spread. Measles: 95%, Polio: 90%, DTP3: 90%</span>
+                </span>. Countries meeting thresholds have sufficient protection against outbreaks.
+            </div>
+            
+            <div class="toolbar">
+                <label for="year-select">Year:</label>
+                <select id="year-select">
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                </select>
+                
+                <label for="disease-select">Disease:</label>
+                <select id="disease-select">
+                    <option value="Measles">Measles</option>
+                    <option value="Polio">Polio</option>
+                    <option value="DTP3">DTP3</option>
+                </select>
+                
+                <label for="region-select">Region:</label>
+                <select id="region-select">
+                    <option value="All">All</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Americas">Americas</option>
+                    <option value="EMRO">EMRO</option>
+                    <option value="Europe">Europe</option>
+                    <option value="SEARO">SEARO</option>
+                    <option value="WPRO">WPRO</option>
+                </select>
+                
+                <label for="search-input">Search:</label>
+                <input type="text" id="search-input" placeholder="Search country...">
+                
+                <button id="apply-filter">Apply</button>
+                <button id="export-countries">Export Countries CSV</button>
+            </div>
+
+            <!-- ADDED: Visual highlighting for key data -->
+            <div class="highlight-box" id="coverage-highlight" style="display: none;">
+                💡 <strong>Coverage Insight:</strong> Countries shown in <span style="color: #10b981;">green</span> meet herd immunity thresholds and have strong disease protection.
+            </div>
+            
+            <div class="split-container">
+                <div class="split-panel">
+                    <h3>Country Data 
+                        <span class="tooltip">(Vaccination Coverage)
+                            <span class="tooltiptext">Percentage of population receiving recommended vaccines. Higher coverage = better community protection against disease outbreaks.</span>
+                        </span>
+                    </h3>
+                    <div id="country-table-container"></div>
+                </div>
+                <div class="split-panel">
+                    <h3>Region Summary 
+                        <span class="tooltip">(Average Calculations)
+                            <span class="tooltiptext">Regional averages exclude missing data. Shows overall vaccination performance across countries in each region.</span>
+                        </span>
+                    </h3>
+                    <div id="region-summary-container"></div>
+                </div>
+            </div>
+            
+            <footer>
+                <p>Footnote: Missing values are displayed as 'Missing' and excluded from averages.</p>
+            </footer>
+        </div>
+        
+        <!-- 3A — Deep Dive Tab -->
+        <div id="deep-a" class="tab-content">
+            <h2>Deep Dive — Compare Against Threshold</h2>
+            
+            <!-- ADDED: Explanatory text for calculations -->
+            <div class="explanation">
+                <span class="key-term">Analysis Method:</span> Each country's vaccination coverage is compared against disease-specific 
+                <span class="tooltip">herd immunity thresholds
+                    <span class="tooltiptext">Minimum vaccination rate needed to prevent outbreaks. Based on disease contagiousness and vaccine effectiveness.</span>
+                </span>. This identifies countries needing urgent intervention to prevent disease spread.
+            </div>
+            
+            <div class="toolbar">
+                <label for="deep-year">Year:</label>
+                <select id="deep-year">
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                </select>
+                
+                <label for="deep-disease">Disease:</label>
+                <select id="deep-disease">
+                    <option value="Measles">Measles</option>
+                    <option value="Polio">Polio</option>
+                    <option value="DTP3">DTP3</option>
+                </select>
+                
+                <span id="threshold-display">Threshold: —%</span>
+                
+                <button id="deep-apply">Apply</button>
+                <button id="deep-export">Export CSV</button>
+            </div>
+
+            <!-- ADDED: Visual highlighting for key data -->
+            <div class="highlight-box highlight-warning" id="threshold-warning" style="display: none;">
+                ⚠️ <strong>Attention Needed:</strong> Some countries are below herd immunity threshold and may be at risk of disease outbreaks.
+            </div>
+            
+            <div id="deep-table-container"></div>
+            
+            <footer>
+                <p>Method: Compare each country's coverage against the fixed threshold for the chosen disease.<br>
+                Missing values: flagged as 'Missing' and excluded from ranking calculations.</p>
+            </footer>
+        </div>
+        
+        <!-- 1B — Mission Tab -->
+        <div id="mission-b" class="tab-content">
+            <div class="nav">
+                <a href="#" data-tab="mission-b">1B — Mission</a> |
+                <a href="#" data-tab="infections-b">2B — Infections</a> |
+                <a href="#" data-tab="above-avg-b">3B — Above Average</a>
+            </div>
+            
+            <div class="card">
+                <h1>Global Vaccination — Mission (1B)</h1>
+                <p>Our mission is to help people make sense of infection and immunisation data
+                without jargon. We translate complex global datasets into clear, plain-English insights.</p>
+
+                <h3>How to Use</h3>
+                <ol>
+                    <li>Go to <a href="#" data-tab="infections-b">2B – Infections by Economic Status</a> to view infection data by filters.</li>
+                    <li>Go to <a href="#" data-tab="above-avg-b">3B – Above-Average Infection Rate</a> to explore deeper trends.</li>
+                </ol>
+
+                <h3>Personas</h3>
+                <ul>
+                    <li><strong>Amara Okoye</strong> – NGO Coordinator who needs quick, exportable data views.</li>
+                    <li><strong>Daniel Reid</strong> – School Teacher who wants simplified visuals and clear terms.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 2B — Infections Tab -->
+        <div id="infections-b" class="tab-content">
+            <div class="nav">
+                <a href="#" data-tab="mission-b">1B — Mission</a> |
+                <a href="#" data-tab="infections-b">2B — Infections</a> |
+                <a href="#" data-tab="above-avg-b">3B — Above Average</a>
+            </div>
+            
+            <div class="card">
+                <h1>2B — Infections by Economic Status</h1>
+
+                <!-- ADDED: Explanatory text for calculations -->
+                <div class="explanation">
+                    <span class="key-term">Infection Rates:</span> Shows disease cases per 100,000 people. Lower rates indicate better disease control. Data organized by 
+                    <span class="tooltip">economic development level
+                        <span class="tooltiptext">Countries grouped by income: High, Upper-Middle, Lower-Middle, Low. Helps identify healthcare access disparities.</span>
+                    </span> to highlight equity issues.
+                </div>
+                
+                <div class="toolbar">
+                    <label for="year-b">Year:</label>
+                    <input type="text" id="year-b" value="2023" size="5">
+                    
+                    <label for="disease-b">Disease:</label>
+                    <input type="text" id="disease-b" value="Measles" size="10">
+                    
+                    <label for="econ-b">Economic Phase:</label>
+                    <input type="text" id="econ-b" value="All" size="14">
+                    
+                    <button id="apply-b">Apply</button>
+                </div>
+            </div>
+            
+            <div id="infections-table-container"></div>
+            
+            <div class="card">
+                <h3>Summary by Economic Phase</h3>
+                <div id="phase-summary-container"></div>
+            </div>
+        </div>
+        
+        <!-- 3B — Above Average Tab -->
+        <div id="above-avg-b" class="tab-content">
+            <div class="nav">
+                <a href="#" data-tab="mission-b">1B — Mission</a> |
+                <a href="#" data-tab="infections-b">2B — Infections</a> |
+                <a href="#" data-tab="above-avg-b">3B — Above Average</a>
+            </div>
+            
+            <div class="card">
+                <h1>3B — Above-Average Infection Rate</h1>
+
+                <!-- ADDED: Explanatory text for calculations -->
+                <div class="explanation">
+                    <span class="key-term">Calculation:</span> Global average infection rate is computed from all countries with available data. This page shows countries with rates <strong>above this average</strong>, indicating areas that may need targeted public health interventions.
+                </div>
+                
+                <div class="toolbar">
+                    <label for="year-b2">Year:</label>
+                    <input type="text" id="year-b2" value="2023" size="5">
+                    
+                    <label for="disease-b2">Disease:</label>
+                    <input type="text" id="disease-b2" value="Measles" size="10">
+                    
+                    <button id="apply-b2">Apply</button>
+                </div>
+                <p><strong>Global average:</strong> <span id="global-avg">—</span> per 100k</p>
+            </div>
+
+            <!-- ADDED: Visual highlighting for key data -->
+            <div class="highlight-box highlight-warning" id="above-avg-highlight" style="display: none;">
+                🔥 <strong>Priority Areas:</strong> These countries have infection rates above global average and may need urgent public health attention.
+            </div>
+            
+            <div id="above-avg-table-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // [KEEP ALL YOUR EXISTING JAVASCRIPT CODE]
+        // Data models for both A and B versions
+        const DISEASES = ["Measles", "Polio", "DTP3"];
+        const REGIONS = ["Africa", "Americas", "EMRO", "Europe", "SEARO", "WPRO"];
+        const YEARS = [2023, 2022, 2021];
+        const ECONOMIC_PHASES = ["High", "Upper-Middle", "Lower-Middle", "Low"];
+        
+        // Vaccination data for A version
+        const VACCINATION_ROWS = [
+            {country: "Australia", region: "WPRO", year: 2023, disease: "Measles", vaccinationRate: 95.0},
+            {country: "India", region: "SEARO", year: 2023, disease: "Measles", vaccinationRate: 92.0},
+            {country: "Kenya", region: "Africa", year: 2023, disease: "Measles", vaccinationRate: 86.0},
+            {country: "Brazil", region: "Americas", year: 2023, disease: "Measles", vaccinationRate: 88.0},
+            {country: "Germany", region: "Europe", year: 2023, disease: "Measles", vaccinationRate: 93.0},
+            {country: "Nepal", region: "SEARO", year: 2023, disease: "Measles", vaccinationRate: null},
+            {country: "Australia", region: "WPRO", year: 2023, disease: "Polio", vaccinationRate: 94.0},
+            {country: "India", region: "SEARO", year: 2023, disease: "Polio", vaccinationRate: 90.0},
+            {country: "Brazil", region: "Americas", year: 2023, disease: "Polio", vaccinationRate: 91.0},
+            {country: "Germany", region: "Europe", year: 2023, disease: "Polio", vaccinationRate: 93.0},
+            {country: "Australia", region: "WPRO", year: 2022, disease: "Measles", vaccinationRate: 94.0},
+            {country: "India", region: "SEARO", year: 2022, disease: "Measles", vaccinationRate: 91.0},
+            {country: "Kenya", region: "Africa", year: 2022, disease: "Measles", vaccinationRate: 84.0},
+            {country: "Brazil", region: "Americas", year: 2022, disease: "Measles", vaccinationRate: 87.0},
+            {country: "Germany", region: "Europe", year: 2022, disease: "Measles", vaccinationRate: 92.0}
+        ];
+        
+        // Infection data for B version
+        const INFECTION_ROWS = [
+            {country: "Australia", region: "High", year: 2023, disease: "Measles", infectionRate: 7.0},
+            {country: "India", region: "Lower-Middle", year: 2023, disease: "Measles", infectionRate: 22.0},
+            {country: "Kenya", region: "Lower-Middle", year: 2023, disease: "Measles", infectionRate: 28.0},
+            {country: "Brazil", region: "Upper-Middle", year: 2023, disease: "Measles", infectionRate: 19.5},
+            {country: "Germany", region: "High", year: 2023, disease: "Measles", infectionRate: 8.4},
+            {country: "Nepal", region: "Lower-Middle", year: 2023, disease: "Measles", infectionRate: null},
+            {country: "Australia", region: "High", year: 2023, disease: "Polio", infectionRate: 3.2},
+            {country: "India", region: "Lower-Middle", year: 2023, disease: "Polio", infectionRate: 12.5},
+            {country: "Brazil", region: "Upper-Middle", year: 2023, disease: "Polio", infectionRate: 8.7},
+            {country: "Germany", region: "High", year: 2023, disease: "Polio", infectionRate: 2.1},
+            {country: "Australia", region: "High", year: 2022, disease: "Measles", infectionRate: 6.5},
+            {country: "India", region: "Lower-Middle", year: 2022, disease: "Measles", infectionRate: 24.3},
+            {country: "Kenya", region: "Lower-Middle", year: 2022, disease: "Measles", infectionRate: 31.2},
+            {country: "Brazil", region: "Upper-Middle", year: 2022, disease: "Measles", infectionRate: 20.1},
+            {country: "Germany", region: "High", year: 2022, disease: "Measles", infectionRate: 9.2}
+        ];
+        
+        // Helper functions
+        function herdThreshold(disease) {
+            switch (disease) {
+                case "Measles": return 95.0;
+                case "Polio": return 90.0;
+                default: return 90.0;
+            }
+        }
+        
+        function filterVaccinationData(year, disease, regionOrAll, query) {
+            const q = query ? query.trim().toLowerCase() : "";
+            return VACCINATION_ROWS
+                .filter(r => r.year == year)
+                .filter(r => r.disease === disease)
+                .filter(r => regionOrAll === "All" || r.region === regionOrAll)
+                .filter(r => !q || r.country.toLowerCase().includes(q))
+                .sort((a, b) => {
+                    const av = a.vaccinationRate === null ? -1 : a.vaccinationRate;
+                    const bv = b.vaccinationRate === null ? -1 : b.vaccinationRate;
+                    return bv - av;
+                });
+        }
+        
+        function filterInfectionData(year, disease, econ) {
+            return INFECTION_ROWS
+                .filter(r => r.year == year && r.disease === disease)
+                .filter(r => econ === "All" || r.region === econ);
+        }
+        
+        // Tab switching functionality
+        document.querySelectorAll('.tab, .nav a').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                const tabId = tab.getAttribute('data-tab');
+                if (tabId) {
+                    tab.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Refresh data if needed
+                    if (tabId === 'shallow-a') {
+                        refreshShallowGlance();
+                    } else if (tabId === 'deep-a') {
+                        refreshDeepDive();
+                    } else if (tabId === 'infections-b') {
+                        refreshInfections();
+                    } else if (tabId === 'above-avg-b') {
+                        refreshAboveAverage();
+                    }
+                }
+            });
+        });
+        
+        // Table rendering functions
+        function renderTable(containerId, headers, rows) {
+            const container = document.getElementById(containerId);
+            
+            if (rows.length === 0) {
+                container.innerHTML = '<p>No data available for the selected filters.</p>';
+                return;
+            }
+            
+            let html = '<table><thead><tr>';
+            
+            // Create header row
+            headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            // Create data rows
+            rows.forEach(row => {
+                html += '<tr>';
+                row.forEach((cell, index) => {
+                    let cellClass = '';
+                    if (headers[index] === 'Status') {
+                        if (cell === 'Meets threshold') cellClass = 'status-meets';
+                        else if (cell === 'Below threshold') cellClass = 'status-below';
+                        else if (cell === 'Missing') cellClass = 'status-missing';
+                    } else if (headers[index] === 'Economic Phase') {
+                        if (cell === 'High') cellClass = 'phase-high';
+                        else if (cell === 'Upper-Middle') cellClass = 'phase-upper-middle';
+                        else if (cell === 'Lower-Middle') cellClass = 'phase-lower-middle';
+                        else if (cell === 'Low') cellClass = 'phase-low';
+                    }
+                    html += `<td class="${cellClass}">${cell}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+            // ADDED: Update visual highlights after rendering tables
+            updateVisualHighlights();
+        }
+        
+        // 2A — Shallow Glance functionality
+        function refreshShallowGlance() {
+            const year = document.getElementById('year-select').value;
+            const disease = document.getElementById('disease-select').value;
+            const region = document.getElementById('region-select').value;
+            const query = document.getElementById('search-input').value;
+            
+            const filtered = filterVaccinationData(parseInt(year), disease, region, query);
+            const threshold = herdThreshold(disease);
+            
+            // Prepare country table data
+            const countryRows = filtered.map(row => {
+                let status, coverageStr;
+                if (row.vaccinationRate === null) {
+                    status = 'Missing';
+                    coverageStr = '—';
+                } else {
+                    const ok = row.vaccinationRate >= threshold;
+                    status = ok ? 'Meets threshold' : 'Below threshold';
+                    coverageStr = row.vaccinationRate.toString();
+                }
+                return [row.country, row.region, coverageStr, status];
+            });
+            
+            renderTable('country-table-container', ['Country', 'Region', 'Coverage (%)', 'Status'], countryRows);
+            
+            // Prepare region summary data
+            const byRegion = {};
+            filtered.forEach(row => {
+                if (!byRegion[row.region]) {
+                    byRegion[row.region] = [];
+                }
+                byRegion[row.region].push(row);
+            });
+            
+            const summaryRows = Object.entries(byRegion).map(([region, rows]) => {
+                const count = rows.length;
+                const present = rows.filter(r => r.vaccinationRate !== null).length;
+                const sum = rows
+                    .filter(r => r.vaccinationRate !== null)
+                    .reduce((acc, r) => acc + r.vaccinationRate, 0);
+                
+                const avg = present > 0 ? (sum / present).toFixed(1) : '—';
+                return [region, avg, `${count} (${count - present})`];
+            });
+            
+            renderTable('region-summary-container', ['Region', 'Avg coverage (%)', 'Rows (missing)'], summaryRows);
+        }
+        
+        // 3A — Deep Dive functionality
+        function refreshDeepDive() {
+            const year = document.getElementById('deep-year').value;
+            const disease = document.getElementById('deep-disease').value;
+            const threshold = herdThreshold(disease);
+            
+            document.getElementById('threshold-display').textContent = `Threshold: ${threshold}%`;
+            
+            const filtered = filterVaccinationData(parseInt(year), disease, "All", "");
+            
+            const tableRows = filtered.map(row => {
+                let status, coverageStr;
+                if (row.vaccinationRate === null) {
+                    status = 'Missing';
+                    coverageStr = '—';
+                } else {
+                    const ok = row.vaccinationRate >= threshold;
+                    status = ok ? 'Meets threshold' : 'Below threshold';
+                    coverageStr = row.vaccinationRate.toString();
+                }
+                return [row.country, row.region, coverageStr, status];
+            });
+            
+            renderTable('deep-table-container', ['Country', 'Region', 'Coverage (%)', 'Status'], tableRows);
+        }
+        
+        // 2B — Infections functionality
+        function refreshInfections() {
+            const year = document.getElementById('year-b').value;
+            const disease = document.getElementById('disease-b').value;
+            const econ = document.getElementById('econ-b').value;
+            
+            const filtered = filterInfectionData(parseInt(year), disease, econ);
+            
+            // Prepare infections table data
+            const infectionRows = filtered.map(row => {
+                const rateStr = row.infectionRate === null ? '—' : row.infectionRate.toFixed(1);
+                return [row.country, row.region, rateStr];
+            });
+            
+            renderTable('infections-table-container', ['Country', 'Economic Phase', 'Infections / 100k'], infectionRows);
+            
+            // Prepare phase summary data
+            const byPhase = {};
+            filtered.forEach(row => {
+                if (!byPhase[row.region]) {
+                    byPhase[row.region] = [];
+                }
+                byPhase[row.region].push(row);
+            });
+            
+            let summaryHtml = '<ul>';
+            for (const [phase, rows] of Object.entries(byPhase)) {
+                const valid = rows.filter(r => r.infectionRate !== null);
+                const avg = valid.length > 0 
+                    ? (valid.reduce((sum, r) => sum + r.infectionRate, 0) / valid.length).toFixed(1)
+                    : '—';
+                summaryHtml += `<li>${phase}: Avg ${avg}</li>`;
+            }
+            summaryHtml += '</ul>';
+            
+            document.getElementById('phase-summary-container').innerHTML = summaryHtml;
+
+            // ADDED: Update visual highlights
+            updateVisualHighlights();
+        }
+        
+        // 3B — Above Average functionality
+        function refreshAboveAverage() {
+            const year = document.getElementById('year-b2').value;
+            const disease = document.getElementById('disease-b2').value;
+            
+            const filtered = filterInfectionData(parseInt(year), disease, "All");
+            const validRates = filtered.filter(r => r.infectionRate !== null).map(r => r.infectionRate);
+            const avg = validRates.length > 0 
+                ? (validRates.reduce((sum, rate) => sum + rate, 0) / validRates.length).toFixed(1)
+                : 0;
+            
+            document.getElementById('global-avg').textContent = avg;
+            
+            // Prepare above average table data
+            const aboveAvgRows = filtered
+                .filter(r => r.infectionRate !== null && r.infectionRate > avg)
+                .sort((a, b) => b.infectionRate - a.infectionRate)
+                .map(row => [row.country, row.region, row.infectionRate.toFixed(1)]);
+            
+            renderTable('above-avg-table-container', ['Country', 'Phase', 'Infections / 100k'], aboveAvgRows);
+        }
+
+        // ADDED: Function to update visual highlights based on current data
+        function updateVisualHighlights() {
+            // Update coverage highlight for 2A
+            const meetsCount = document.querySelectorAll('.status-meets').length;
+            const coverageHighlight = document.getElementById('coverage-highlight');
+            if (coverageHighlight) {
+                coverageHighlight.style.display = meetsCount > 0 ? 'block' : 'none';
+            }
+
+            // Update threshold warning for 3A
+            const belowCount = document.querySelectorAll('.status-below').length;
+            const thresholdWarning = document.getElementById('threshold-warning');
+            if (thresholdWarning) {
+                thresholdWarning.style.display = belowCount > 0 ? 'block' : 'none';
+            }
+
+            // Update above average highlight for 3B
+            const aboveAvgTable = document.querySelector('#above-avg-table-container table');
+            const aboveAvgHighlight = document.getElementById('above-avg-highlight');
+            if (aboveAvgHighlight && aboveAvgTable) {
+                const rowCount = aboveAvgTable.querySelectorAll('tbody tr').length;
+                aboveAvgHighlight.style.display = rowCount > 0 ? 'block' : 'none';
+            }
+        }
+        
+        // CSV export functionality
+        function exportToCSV(headers, rows, filename) {
+            let csvContent = headers.join(',') + '\n';
+            
+            rows.forEach(row => {
+                const escapedRow = row.map(cell => {
+                    if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
+                        return '"' + cell.replace(/"/g, '""') + '"';
+                    }
+                    return cell;
+                });
+                csvContent += escapedRow.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Event listeners for A version
+        document.getElementById('apply-filter').addEventListener('click', refreshShallowGlance);
+        document.getElementById('deep-apply').addEventListener('click', refreshDeepDive);
+        
+        document.getElementById('export-countries').addEventListener('click', () => {
+            const year = document.getElementById('year-select').value;
+            const disease = document.getElementById('disease-select').value;
+            
+            // Get current country table data
+            const table = document.querySelector('#country-table-container table');
+            if (!table) return;
+            
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+            const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => 
+                Array.from(tr.querySelectorAll('td')).map(td => td.textContent)
+            );
+            
+            exportToCSV(headers, rows, `2A_${disease}_${year}.csv`);
+        });
+        
+        document.getElementById('deep-export').addEventListener('click', () => {
+            const year = document.getElementById('deep-year').value;
+            const disease = document.getElementById('deep-disease').value;
+            
+            // Get current deep dive table data
+            const table = document.querySelector('#deep-table-container table');
+            if (!table) return;
+            
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+            const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => 
+                Array.from(tr.querySelectorAll('td')).map(td => td.textContent)
+            );
+            
+            exportToCSV(headers, rows, `3A_${disease}_${year}.csv`);
+        });
+        
+        // Event listeners for B version
+        document.getElementById('apply-b').addEventListener('click', refreshInfections);
+        document.getElementById('apply-b2').addEventListener('click', refreshAboveAverage);
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshShallowGlance();
+            refreshDeepDive();
+            refreshInfections();
+            refreshAboveAverage();
+        });
+    </script>
+</body>
+</html>

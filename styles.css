@@ -1,0 +1,57 @@
+/* styles.css — Java + CSS (JavaFX) */
+.root {
+    -fx-font-family: "Segoe UI", "Inter", "Arial";
+    -fx-base: #ffffff;
+    -fx-background: linear-gradient(to bottom, #f8fafc, #eef2f7);
+}
+
+.title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.mono {
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-size: 12px;
+}
+
+.toolbar > * {
+    -fx-font-size: 13px;
+}
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.text-area {
+    -fx-border-color: #cbd5e1;
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.button {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-background-radius: 10;
+    -fx-padding: 8 14 8 14;
+}
+
+.button:hover {
+    -fx-background-color: #1f2937;
+}
+
+.label {
+    -fx-text-fill: #334155;
+}
+
+.combo-box, .text-field {
+    -fx-background-color: white;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
